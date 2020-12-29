@@ -119,7 +119,7 @@ def solve(hashed_word, start_range, end_range):
 def split_message(message):
     magic_cookie = message[0].hex()
     message_type = message[1].hex()
-    dest_port = int.from_bytes(message[2], byteorder='big')
+    dest_port = message[2].hex()
     return magic_cookie, message_type, dest_port
 
 
@@ -131,7 +131,7 @@ def check_legal_offer(magic_cookie, message_type, dest_port):
         flag1 = False
     if not message_type == '02':
         flag2 = False
-    if not dest_port._eq_('13117'):
+    if not dest_port._eq_('13117'): #todo change
         flag3 = False
     return flag1 and flag2 and flag3
 
