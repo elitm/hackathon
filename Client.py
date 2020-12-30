@@ -1,6 +1,6 @@
 import time
-from Utils import *
-from socket import *
+#from Utils import *
+import socket
 
 
 # Class Client
@@ -14,24 +14,26 @@ class Client:
         self.team_name = name
 
     def run(self):
-        UDP_client_socket = socket(AF_INET, SOCK_DGRAM) # todo works tcp
-        UDP_client_socket.bind(('', Client.LISTEN_PORT))
-        print(f"[Main Client]: Created main socket binded to port: {Client.listen_port}")
+        UDP_Client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        UDP_Client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        UDP_Client_socket.bind(('', Client.RECEIVED_PORT))
+        print(f"[Main Client]: Created main socket binded to port: {Client.RECEIVED_PORT}")
 
         while True:  # todo something else instead of TRUE
             # Wait for BROADCAST
-            print("[Client]: Client waiting for an offer message")
-            message, address_broadcaster = UDP_client_socket.recvfrom(1024) # todo check if legal port
+            print("[Client]: Client started, listening for offer requests...")
+            message, address_broadcaster = UDP_Client_socket.recvfrom(1024)
 
             # TIMER DEFAULT
             try:
                 print(f"[Main Server]: Server got a message from: {address_broadcaster}")  # , message is: {message}
-                magic_cookie, message_type, dest_port = split_message(message)
-                is_legal = check_legal_offer(magic_cookie, message_type, dest_port)
+                magic_cookie, message_type, dest_port = self.split_message(message)
+                is_legal = self.check_legal_offer(magic_cookie, message_type, dest_port)
 
-                ip_address = sock.gethostbyname(sock.gethostname())
+                ip_address = socket.gethostbyname(socket.gethostname())
 
-                TCP_Client_socket = socket(AF_INET, SOCK_STREAM)
+                TCP_Client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                TCP_Client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 TCP_Client_socket.bind((ip_address, Client.SEND_PORT))
 
                 if is_legal:
@@ -44,5 +46,27 @@ class Client:
 
             except Exception as e:
                 print(f"Client: Exception: {e}")
-                client_socket.close()
+                TCP_Client_socket.close()
 
+
+
+
+    def split_message(self,m):
+        message1 = m.hex()
+        magic_cookie = message1[:8]
+        message_type = message1[8:10]
+        dest_port = message1[10:]
+        return magic_cookie, message_type, dest_port
+
+
+    def check_legal_offer(self, magic_cookie, message_type, dest_port):
+        flag1 = True
+        flag2 = True
+        flag3 = True
+        if not magic_cookie == 'feedbeef':
+            flag1 = False
+        if not message_type == '02':
+            flag2 = False
+        if not dest_port == '2026': #todo change
+            flag3 = False
+        return flag1 and flag2 and flag3

@@ -4,7 +4,7 @@ from _thread import start_new_thread
 
 
 run_threads = True
-thread_number = 10
+thread_number = 4
 
 team_name = "ElitAndShira"
 team_name_space = team_name + (" " * (32 - len(team_name)))
@@ -18,7 +18,7 @@ if not run_threads:
 else:
     # run thread
     for i in range(thread_number):
-        start_new_thread(client.solve_hash, ())
+        start_new_thread(client.run())
 
     try:
         time.sleep(120)
