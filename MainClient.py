@@ -1,26 +1,35 @@
-import time
 from Client import Client
-from _thread import start_new_thread
+import threading
+
 
 
 run_threads = True
-thread_number = 4
+thread_number = 2
 
 team_name = "ElitAndShira"
-team_name_space = team_name + (" " * (32 - len(team_name)))
+team_name1 = "Apolo"
 
-client = Client(team_name_space)
+client = Client(team_name)
+client1 = Client(team_name1)
+# client.run()
 
-if not run_threads:
-    # run on main thread
-    client.run()
+threading.Thread(target=client.run()).start()
+threading.Thread(target=client1.run()).start()
 
-else:
-    # run thread
-    for i in range(thread_number):
-        start_new_thread(client.run())
 
-    try:
-        time.sleep(120)
-    except Exception as e:
-        pass
+# if not run_threads:
+#     # run on main thread
+#     client.run()
+#     client1.run()
+#
+#
+# else:
+#     # run thread
+#     for i in range(thread_number):
+#         start_new_thread(client.run())
+#         start_new_thread(client1.run())
+#
+#     try:
+#         time.sleep(120)
+#     except Exception as e:
+#         pass
